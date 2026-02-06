@@ -10,6 +10,7 @@ Passo a passo:
 1. Clone o repositório
 
 git clone https://github.com/anajulita92/projeto2.git
+
 cd projeto2
 
 2. Execute o Vagrant
