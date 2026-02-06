@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
     vb.check_guest_additions = false
   end
 
-  config.vm.provision "ansible_local" do |ansible|
+  config.vm.provision "ansible" do |ansible|
     ansible.playbook = "playbook_ansible.yml"
   end
 end
