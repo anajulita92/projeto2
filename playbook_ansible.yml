@@ -1,0 +1,63 @@
+- name: Configurar servidor para WordPress com Docker
+  hosts: all
+  become: yes
+  
+  tasks:
+
+    # Atualizar o sistema operacional (update e upgrade)
+    
+    - name: Atualizar o sistema
+      apt:
+        update_cache: yes  # apt update
+        upgrade: dist      # apt upgrade -y
+
+
+
+    # Instalar o Docker e Docker-compose 2
+
+    - name: Instalar dependências
+      apt:
+        name:
+          - apt-transport-https # habilita apt para https
+          - ca-certificates     # certificados tls
+          - curl                # para baixar arquivos
+          - gnupg               # gerencia chaves de segurança
+          - lsb-release         # identifica versão do sistema
+        state: present
+
+    - name: Adicionar chave GPG do Docker
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg  # chave pública
+        state: present
+
+    - name: Configurar repositório do Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
+        state: present
+    
+    - name: Instalar Docker e Docker Compose 2
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Criar diretório da aplicação
+      file:
+        path: /opt/wordpress-app
+        state: directory
+        mode: '0755'
+
+    - name: Copiar arquivo docker-compose.yml
+      copy:
+        src: docker-compose.yml
+        dest: /opt/wordpress-app/docker-compose.yml
+        mode: '0644'
+
+    - name: Iniciar containers com Docker Compose
+      shell: |
+        cd /opt/wordpress-app
+        docker compose up -d

@@ -1,0 +1,54 @@
+name: wordpress-project
+
+networks:
+  wordpress:  
+    driver: bridge
+
+volumes:
+  app:               # webserver
+    driver: local
+  my:                # database
+    driver: local
+
+services:
+  database:
+    image: mysql:8.0.30 
+    container_name: database
+    networks:
+      - wordpress
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress_root_pass
+      MYSQL_DATABASE: wordpress_db
+      MYSQL_USER: wordpress_user
+      MYSQL_PASSWORD: wordpress_pass
+    volumes:
+      - my:/var/lib/mysql  
+    restart: unless-stopped
+
+  webserver:
+    image: wordpress:latest
+    container_name: webserver
+    networks:
+      - wordpress
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_USER: wordpress_user
+      WORDPRESS_DB_PASSWORD: wordpress_pass
+      WORDPRESS_DB_NAME: wordpress_db
+    volumes:
+      - app:/var/www/html 
+    depends_on:
+      - database
+    restart: unless-stopped
+
+ 
+  webproxy:
+    image: anajulita/nginx-wordpress-lb:latest
+    container_name: webproxy
+    networks:
+      - wordpress
+    ports:
+      - "8080:8080"  
+    depends_on:
+      - webserver
+    restart: unless-stopped
