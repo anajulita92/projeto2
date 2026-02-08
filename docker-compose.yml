@@ -11,7 +11,6 @@ volumes:
 services:
   database:
     image: mysql:8.0.30 
-    container_name: database
     networks:
       - wordpress
     environment:
@@ -25,7 +24,6 @@ services:
 
   webserver:
     image: wordpress:latest
-    container_name: webserver
     networks:
       - wordpress
     environment:
@@ -42,7 +40,6 @@ services:
  
   webproxy:
     image: anajulita/nginx-wordpress-lb:latest
-    container_name: webproxy
     networks:
       - wordpress
     ports:
