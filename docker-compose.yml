@@ -1,14 +1,12 @@
 name: wordpress-project
 
 networks:
-  wordpress:  
+  wordpress:
     driver: bridge
 
 volumes:
-  app:               # webserver
-    driver: local
-  my:                # database
-    driver: local
+  app:             
+  my:               
 
 services:
   database:
@@ -17,10 +15,10 @@ services:
     networks:
       - wordpress
     environment:
-      MYSQL_ROOT_PASSWORD: wordpress_root_pass
-      MYSQL_DATABASE: wordpress_db
-      MYSQL_USER: wordpress_user
-      MYSQL_PASSWORD: wordpress_pass
+      MYSQL_ROOT_PASSWORD: ifpb
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: aluno
+      MYSQL_PASSWORD: ifpb
     volumes:
       - my:/var/lib/mysql  
     restart: unless-stopped
@@ -32,9 +30,9 @@ services:
       - wordpress
     environment:
       WORDPRESS_DB_HOST: database:3306
-      WORDPRESS_DB_USER: wordpress_user
-      WORDPRESS_DB_PASSWORD: wordpress_pass
-      WORDPRESS_DB_NAME: wordpress_db
+      WORDPRESS_DB_USER: aluno
+      WORDPRESS_DB_PASSWORD: ifpb 
+      WORDPRESS_DB_NAME: wordpress
     volumes:
       - app:/var/www/html 
     depends_on:
