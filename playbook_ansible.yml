@@ -1,41 +1,39 @@
 - name: Configurar servidor para WordPress com Docker
   hosts: all
   become: yes
-  
+
   tasks:
 
-    # Atualizar o sistema operacional (update e upgrade)
-    
-    - name: Atualizar o sistema
+    - name: Atualizar o sistema operacional
       apt:
-        update_cache: yes  # apt update
-        upgrade: dist      # apt upgrade -y
+        update_cache: yes
+        upgrade: dist
 
 
-
-    # Instalar o Docker e Docker-compose 2
-
-    - name: Instalar dependências
+    - name: Instalar dependências necessárias para o Docker
       apt:
         name:
-          - apt-transport-https # habilita apt para https
-          - ca-certificates     # certificados tls
-          - curl                # para baixar arquivos
-          - gnupg               # gerencia chaves de segurança
-          - lsb-release         # identifica versão do sistema
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
         state: present
 
-    - name: Adicionar chave GPG do Docker
+
+    - name: Adicionar chave GPG oficial do Docker
       apt_key:
-        url: https://download.docker.com/linux/debian/gpg  # chave pública
+        url: https://download.docker.com/linux/debian/gpg
         state: present
 
-    - name: Configurar repositório do Docker
+
+    - name: Configurar repositório oficial do Docker
       apt_repository:
         repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
         state: present
-    
-    - name: Instalar Docker e Docker Compose 2
+
+
+    - name: Instalar Docker e Docker Compose Plugin
       apt:
         name:
           - docker-ce
@@ -44,37 +42,40 @@
           - docker-buildx-plugin
           - docker-compose-plugin
         state: present
-    
+
+
     - name: Adicionar usuário vagrant ao grupo docker
       user:
         name: vagrant
         groups: docker
         append: yes
 
-    - name: Reiniciar serviço Docker para aplicar mudanças
+
+    - name: Reiniciar serviço Docker
       service:
         name: docker
         state: restarted
 
-    - name: Forçar recarga dos grupos do usuário vagrant
-      shell: |
-        sudo -u vagrant groups > /dev/null 2>&1
-      become: yes
+
+    - name: Recarregar grupos do usuário vagrant
+      shell: sudo -u vagrant groups > /dev/null 2>&1
 
 
-    - name: Criar diretório da aplicação
+    - name: Criar diretório da aplicação WordPress
       file:
         path: /opt/wordpress-app
         state: directory
         mode: '0755'
 
-    - name: Copiar arquivo docker-compose.yml
+
+    - name: Copiar arquivo docker-compose.yml para o servidor
       copy:
         src: docker-compose.yml
         dest: /opt/wordpress-app/docker-compose.yml
         mode: '0644'
 
-    - name: Iniciar containers com Docker Compose
-      shell: |
-        cd /opt/wordpress-app
-        docker compose up -d
+
+    - name: Subir containers com Docker Compose
+      shell: docker compose up -d
+      args:
+        chdir: /opt/wordpress-app
